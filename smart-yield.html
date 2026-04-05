@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Yield Predictor | Pro Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="smart-yield.css">
+</head>
+<body class="flex min-h-screen">
+
+    <div id="landingOverlay" class="fixed inset-0 z-[100] flex flex-col items-center justify-center p-6 text-center">
+        <div class="max-w-4xl animate-in">
+            <div class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-bold mb-8 bg-white/20 backdrop-blur-md text-white border border-white/30 shadow-xl">
+                <span class="animate-pulse">🌱</span> Next-Gen Precision Agriculture
+            </div>
+            <h1 class="text-6xl md:text-8xl font-black mb-8 tracking-tighter leading-tight text-white">
+                Optimize Your <br><span class="text-green-400">Harvest</span>
+            </h1>
+            <p class="text-xl mb-12 max-w-xl mx-auto font-medium text-white/90">
+                Empowering farmers with AI-driven insights for sustainable and profitable crop management.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button type="button" onclick="startApp()" class="btn-predict text-white px-12 py-6 rounded-3xl font-extrabold text-xl flex items-center gap-4 shadow-2xl">
+                    Enter Dashboard <span>→</span>
+                </button>
+                <button type="button" onclick="openGuide()" class="bg-white text-green-900 px-8 py-6 rounded-3xl font-extrabold text-xl flex items-center gap-4 hover:bg-green-50 transition-colors">
+                    <span>📖</span> How to Use?
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="guideModal" class="fixed inset-0 z-[110] hidden flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
+        <div class="glass-card max-w-2xl w-full p-10 overflow-y-auto max-h-[90vh]">
+            <div class="flex justify-between items-start mb-8">
+                <h2 class="text-3xl font-black text-green-900">How to Predict Your Yield?</h2>
+                <button type="button" onclick="closeGuide()" class="text-gray-400 hover:text-red-500 text-2xl font-bold">✕</button>
+            </div>
+            <div class="space-y-6">
+                <div class="flex gap-4">
+                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center font-bold text-green-700 shrink-0">1</div>
+                    <p class="text-gray-600 font-medium"><strong class="text-gray-900">Select Location & Crop:</strong> Choose your state and the crop you want to plant from the top boxes.</p>
+                </div>
+                <div class="flex gap-4">
+                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center font-bold text-green-700 shrink-0">2</div>
+                    <p class="text-gray-600 font-medium"><strong class="text-gray-900">Set Soil Details:</strong> Move the sliders or type in the pH level and NPK (Nutrient) values from your soil test report.</p>
+                </div>
+                <div class="flex gap-4">
+                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center font-bold text-green-700 shrink-0">3</div>
+                    <p class="text-gray-600 font-medium"><strong class="text-gray-900">Get Result:</strong> Click the "Run Yield Simulation" button. The AI will calculate how many Kilograms you might get per hectare.</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeGuide()" class="w-full mt-10 py-4 bg-green-800 text-white rounded-2xl font-bold hover:bg-green-700 transition-all">Got it, let's start!</button>
+        </div>
+    </div>
+
+    <aside class="sidebar w-80 text-white flex flex-col fixed h-full z-10 p-8">
+        <div class="flex items-center gap-4 mb-10">
+            <div class="w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center text-2xl border border-white/20">🌾</div>
+            <div>
+                <h1 class="text-2xl font-black tracking-tight leading-none">SmartYield</h1>
+                <p class="text-[10px] text-green-400 font-bold uppercase tracking-widest mt-1">Pro Edition v3.0</p>
+            </div>
+        </div>
+        <nav class="space-y-3 mb-8">
+            <a href="#" class="flex items-center gap-4 p-4 bg-white/10 rounded-2xl border border-white/10 font-bold shadow-inner"><span>📊</span> Dashboard</a>
+            <button type="button" onclick="openGuide()" class="w-full flex items-center gap-4 p-4 hover:bg-white/5 rounded-2xl text-white/70 transition-all font-medium"><span>💡</span> Help Guide</button>
+        </nav>
+
+        <div class="flex-1 flex flex-col min-h-0">
+            <p class="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-4">Detailed Records</p>
+            <div id="historyContainer" class="flex-1 overflow-y-auto space-y-4 pr-2">
+                <div id="emptyHistory" class="text-xs text-white/20 italic">No recent sessions found.</div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="ml-80 flex-1 p-10">
+        <div class="header-banner p-10 flex flex-col justify-end mb-10 shadow-lg">
+            <h2 class="text-4xl font-black text-white drop-shadow-lg">Farm Intelligence</h2>
+            <p class="text-white/80 font-semibold drop-shadow-md">Configure your environmental parameters below.</p>
+        </div>
+
+        <div class="grid grid-cols-12 gap-10">
+            <div class="col-span-12 lg:col-span-8 space-y-8">
+                <div class="glass-card p-10">
+                    <div class="flex justify-between items-center mb-8">
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-8 bg-green-600 rounded-full"></div>
+                            <h3 class="text-xl font-bold text-gray-800">Primary Configurations</h3>
+                        </div>
+                        <button type="button" onclick="openGuide()" class="help-pulse flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-xl text-xs font-bold border border-green-200">
+                            <span>❓</span> Need Help?
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-6 mb-6">
+                        <div class="input-group-card">
+                            <label class="input-label">📍 Regional State</label>
+                            <select id="state">
+                                <option value="1.05">Andhra Pradesh</option>
+                                <option value="1.0" selected>Arunachal Pradesh</option>
+                                <option value="1.02">Assam</option>
+                                <option value="1.02"> Bihar</option>
+                                <option value="1.05">Chhattisgarh</option>
+                                <option value="1.02">Gujarat</option>
+                                <option value="1.02">Haryana</option>
+                                <option value="1.0" selected>Jharkhand</option>
+                                <option value="1.02">Karnataka</option>
+                                <option value="1.02">Kerala</option>
+                                <option value="1.05">Madhya Pradesh</option>
+                                <option value="1.0" selected>Maharashtra</option>
+                                <option value="1.05">Odisha</option>
+                                <option value="1.0" selected> Punjab</option>
+                                <option value="1.02">Rajasthan</option>
+                                <option value="1.02">Tamil Nadu</option>
+                                <option value="1.05">Telangana</option>
+                                <option value="1.0" selected>Uttar Pradesh</option>
+                                <option value="1.02">Uttarakhand</option>
+                                <option value="1.02">West Bengal</option>
+                            </select>
+                        </div>
+                        <div class="input-group-card">
+                            <label class="input-label">🌾 Target Crop</label>
+                            <select id="crop">
+                                <option value="1.2" selected>Wheat</option>
+                                <option value="1.5">Rice</option>
+                                <option value="1.1">Sugarcane</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-6 mb-6">
+                        <div class="input-group-card">
+                            <label class="input-label">📅 Sowing Season</label>
+                            <select id="season">
+                                <option value="1.2" selected>Rabi (Winter)</option>
+                                <option value="1.1">Kharif (Monsoon)</option>
+                            </select>
+                        </div>
+                        <div class="input-group-card">
+                            <label class="input-label">⛰️ Soil Classification</label>
+                            <select id="soil">
+                                <option value="1.1" selected>Loamy</option>
+                                <option value="1.0">Black Soil</option>
+                                <option value="0.8">Sandy</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="input-group-card mb-10">
+                        <label class="input-label">💧 Irrigation System</label>
+                        <select id="irrigation">
+                            <option value="1.2" selected>Drip Irrigation (Recommended)</option>
+                            <option value="1.0">Sprinkler System</option>
+                            <option value="0.8">Flood/Surface</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-12 bg-green-50/50 p-8 rounded-3xl border border-green-100">
+                        <div class="flex justify-between items-center mb-6">
+                            <div>
+                                <h4 class="font-bold text-gray-800">Thermal Profile</h4>
+                                <p class="text-xs text-gray-500">Average daily temperature during growth phase</p>
+                            </div>
+                            <span id="tempVal" class="px-5 py-2 bg-green-900 text-white rounded-2xl font-black text-lg shadow-xl">25°C</span>
+                        </div>
+                        <input type="range" id="temp" min="10" max="50" value="25">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-6 mb-10">
+                        <div class="input-group-card">
+                            <label class="input-label">🌧️ Avg Rainfall (mm)</label>
+                            <input type="number" id="rain" value="200">
+                        </div>
+                        <div class="input-group-card">
+                            <label class="input-label">🧪 Soil pH Balance</label>
+                            <input type="number" id="ph" value="6.5" step="0.1">
+                        </div>
+                    </div>
+
+                    <h3 class="font-bold text-gray-800 mb-6 flex items-center gap-2">
+                        <span class="text-green-600">●</span> Nutrient Composition (NPK)
+                    </h3>
+                    <div class="grid grid-cols-3 gap-6 mb-12">
+                        <div class="input-group-card flex items-center gap-4">
+                            <div class="npk-badge bg-green-600 text-white">N</div>
+                            <input type="number" id="n_val" value="80">
+                        </div>
+                        <div class="input-group-card flex items-center gap-4">
+                            <div class="npk-badge bg-orange-500 text-white">P</div>
+                            <input type="number" id="p_val" value="40">
+                        </div>
+                        <div class="input-group-card flex items-center gap-4">
+                            <div class="npk-badge bg-blue-500 text-white">K</div>
+                            <input type="number" id="k_val" value="50">
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="runPrediction()" class="w-full btn-predict text-white font-black py-6 rounded-3xl shadow-2xl flex items-center justify-center gap-4 uppercase tracking-[0.2em] text-lg">
+                        <span>🚀</span> Run Yield Simulation
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-span-12 lg:col-span-4 space-y-8">
+                <div id="resultBox" class="glass-card p-12 text-center relative overflow-hidden group">
+                    <div id="loading" class="hidden absolute inset-0 bg-white/95 flex flex-col items-center justify-center z-20 backdrop-blur-sm">
+                        <div class="w-14 h-14 border-4 border-green-100 border-t-green-600 rounded-full animate-spin"></div>
+                        <p class="mt-4 font-bold text-green-900 text-xs uppercase tracking-widest">Analyzing Soil Model...</p>
+                    </div>
+
+                    <div class="relative z-10">
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-6">Predicted Yield Result</p>
+                        <div id="yieldDisplay" class="text-7xl font-black text-gray-900 mb-6 tracking-tighter">--</div>
+                        <span id="badge" class="px-6 py-2 bg-gray-100 text-gray-400 rounded-full text-xs font-bold uppercase tracking-widest transition-all">Ready for Input</span>
+                    </div>
+
+                    <div class="absolute -bottom-10 -right-10 text-gray-50 opacity-10 text-[150px] pointer-events-none group-hover:scale-110 transition-transform duration-700">🌾</div>
+                </div>
+
+                <div class="glass-card p-8 bg-gradient-to-br from-white to-green-50">
+                    <h4 class="font-bold text-gray-900 mb-6 flex items-center gap-2">
+                        <span class="text-lg">✨</span> Precision Insights
+                    </h4>
+                    <div id="recommendations" class="space-y-4">
+                        <div class="p-4 bg-white/50 border border-green-100 rounded-2xl flex items-start gap-3">
+                            <div class="text-xl">💡</div>
+                            <p class="text-xs text-gray-500 leading-relaxed font-medium">Input your field data to receive AI-generated recommendations for maximizing output.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script defer src="app.js"></script>
+</body>
+</html>
